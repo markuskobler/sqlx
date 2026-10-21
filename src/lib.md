@@ -42,19 +42,11 @@ you can enable Transport Layer Security (TLS) by enabling one of the following f
     features. Alternatively, you can use `tls-rustls-aws-lc-rs` to use the
     `aws-lc-rs` provider, which enables additional cipher suite support at the cost
     of more onerous build requirements (depending on platform support).
+  * To use the platform's native CA certificates instead of bundled WebPKI roots,
+    enable `tls-rustls-ring-native-roots` or `tls-rustls-aws-lc-rs-native-roots`.
+    Native roots take precedence if both root sources are enabled.
 
-To use only application-supplied CA certificates, select `tls-native-tls-no-roots`,
-`tls-rustls-ring-no-roots`, or `tls-rustls-aws-lc-rs-no-roots` instead of the
-corresponding feature above. Supply CA certificates through the connection options
-when verifying server certificates. These features preserve certificate verification.
-Other enabled TLS features can still enable default roots; enabling the original
-feature for the same backend restores its default roots.
-
-On Android, `native-tls` cannot disable system roots. Verified connections with
-`tls-native-tls-no-roots` return a configuration error unless `tls-native-tls` is
-also enabled. Use `rustls` to trust only supplied CA certificates on Android.
-
-If more than one TLS feature is enabled, the `native-tls` backend takes precedence so that it is only necessary to enable
+If more than one TLS feature is enabled, the `tls-native-tls` feature takes precedent so that it is only necessary to enable
 it to see if it resolves the `HandshakeFailure` error without disabling `tls-rustls`.
 
 Consult the user manual for your database to find the TLS versions it supports.

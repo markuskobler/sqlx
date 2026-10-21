@@ -29,12 +29,12 @@ dir_tests = os.path.join(dir_workspace, "tests")
 
 RUNTIMES = ["async-std", "async-global-executor", "smol", "tokio"]
 CHECK_TLS = [
-    "native-tls", "native-tls-no-roots", "rustls", "rustls-ring", "rustls-ring-no-roots",
-    "rustls-aws-lc-rs", "rustls-aws-lc-rs-no-roots", "none",
+    "native-tls", "rustls", "rustls-ring", "rustls-aws-lc-rs",
+    "rustls-aws-lc-rs-native-roots", "none",
 ]
 TLS_VARIANTS = [
-    "native-tls", "native-tls-no-roots", "rustls-ring", "rustls-ring-no-roots",
-    "rustls-aws-lc-rs", "rustls-aws-lc-rs-no-roots", "none",
+    "native-tls", "rustls-ring", "rustls-aws-lc-rs",
+    "rustls-aws-lc-rs-native-roots", "none",
 ]
 POSTGRES_VERSIONS = ["17", "16", "15", "14", "13"]
 MYSQL_VERSIONS = ["8", "5_7"]
@@ -87,20 +87,12 @@ def extract_features(command):
 
 
 def core_tls_features(tls):
-    if tls == "native-tls":
-        return ["_tls-native-tls", "_tls-native-tls-roots"]
-    if tls == "native-tls-no-roots":
-        return ["_tls-native-tls"]
     if tls == "rustls":
         return ["_tls-rustls-ring-webpki"]
     if tls == "rustls-ring":
         return ["_tls-rustls-ring-webpki", "_tls-rustls-ring-native-roots"]
     if tls == "rustls-aws-lc-rs":
-        return ["_tls-rustls-aws-lc-rs", "_tls-rustls-webpki-roots"]
-    if tls == "rustls-aws-lc-rs-no-roots":
         return ["_tls-rustls-aws-lc-rs"]
-    if tls == "rustls-ring-no-roots":
-        return ["_tls-rustls-ring"]
     return [f"_tls-{tls}"]
 
 
@@ -326,7 +318,7 @@ for runtime in RUNTIMES:
             # Since docker mysql 5.7 using yaSSL(It only supports TLSv1.1), avoid running when using rustls.
             # https://github.com/docker-library/mysql/issues/567
             # only run when using native-tls
-            if not (version == "5_7" and tls in ["rustls-ring", "rustls-aws-lc-rs"]):
+            if not (version == "5_7" and tls in ["rustls-ring", "rustls-aws-lc-rs", "rustls-aws-lc-rs-native-roots"]):
                 run(
                     f"cargo test --no-default-features --features {features}",
                     comment=f"test mysql {version}",
@@ -336,7 +328,7 @@ for runtime in RUNTIMES:
                 )
 
                 ## +client-ssl
-                if tls != "none" and not (version == "5_7" and tls in ["rustls-ring", "rustls-aws-lc-rs"]):
+                if tls != "none" and not (version == "5_7" and tls in ["rustls-ring", "rustls-aws-lc-rs", "rustls-aws-lc-rs-native-roots"]):
                     run(
                         f"cargo test --no-default-features --features {base_features}",
                         comment=f"test mysql {version}_client_ssl no-password",

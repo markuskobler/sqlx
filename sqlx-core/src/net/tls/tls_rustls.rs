@@ -93,9 +93,19 @@ pub struct RustlsConnector {
 }
 
 pub async fn connector(tls_config: TlsConfig<'_>) -> Result<RustlsConnector, Error> {
-    #[cfg(all(feature = "_tls-rustls-aws-lc-rs", not(feature = "_tls-rustls-ring")))]
+    #[cfg(all(
+        any(
+            feature = "_tls-rustls-aws-lc-rs",
+            feature = "_tls-rustls-aws-lc-rs-native-roots"
+        ),
+        not(feature = "_tls-rustls-ring-webpki"),
+        not(feature = "_tls-rustls-ring-native-roots")
+    ))]
     let provider = Arc::new(rustls::crypto::aws_lc_rs::default_provider());
-    #[cfg(feature = "_tls-rustls-ring")]
+    #[cfg(any(
+        feature = "_tls-rustls-ring-webpki",
+        feature = "_tls-rustls-ring-native-roots"
+    ))]
     let provider = Arc::new(rustls::crypto::ring::default_provider());
 
     // Unwrapping is safe here because we use a default provider.
@@ -238,6 +248,7 @@ fn import_root_certs() -> RootCertStore {
     root_cert_store
 }
 
+// Not currently used but allows for a "tls-rustls-no-roots" feature.
 #[cfg(not(any(feature = "rustls-native-certs", feature = "webpki-roots")))]
 fn import_root_certs() -> RootCertStore {
     RootCertStore::empty()
