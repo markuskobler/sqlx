@@ -81,10 +81,8 @@ def extract_features(command):
 
 
 def core_tls_features(tls):
-    if tls == "rustls":
-        return ["_tls-rustls-ring-webpki"]
-    if tls == "rustls-ring":
-        return ["_tls-rustls-ring-webpki", "_tls-rustls-ring-native-roots"]
+    if tls in ["rustls", "rustls-ring"]:
+        return ["_tls-rustls-ring"]
     if tls == "rustls-aws-lc-rs":
         return ["_tls-rustls-aws-lc-rs"]
     return [f"_tls-{tls}"]

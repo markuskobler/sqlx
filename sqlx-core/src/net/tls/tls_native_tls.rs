@@ -45,9 +45,22 @@ pub struct NativeTlsConnector {
 }
 
 pub async fn connector(config: TlsConfig<'_>) -> crate::Result<NativeTlsConnector> {
+    // native-tls reloads Android's system roots even when built-in roots are disabled.
+    if cfg!(target_os = "android")
+        && !cfg!(feature = "_tls-native-tls-roots")
+        && !config.accept_invalid_certs
+    {
+        return Err(Error::Configuration(
+            "native-tls cannot disable Android's system roots; enable `tls-native-tls-roots` \
+             or use rustls to trust only supplied CA certificates"
+                .into(),
+        ));
+    }
+
     let mut builder = native_tls::TlsConnector::builder();
 
     builder
+        .disable_built_in_roots(!cfg!(feature = "_tls-native-tls-roots"))
         .danger_accept_invalid_certs(config.accept_invalid_certs)
         .danger_accept_invalid_hostnames(config.accept_invalid_hostnames);
 
@@ -96,5 +109,44 @@ pub async fn handshake<S: Socket>(
                 mid_handshake = mid_handshake_;
             }
         }
+    }
+}
+
+#[cfg(all(test, any(feature = "_rt-tokio", feature = "_rt-async-io")))]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn certificate_verification_respects_root_features() {
+        for accept_invalid_hostnames in [false, true] {
+            let result = rt::test_block_on(connector(TlsConfig {
+                accept_invalid_certs: false,
+                accept_invalid_hostnames,
+                root_cert_path: None,
+                client_cert_path: None,
+                client_key_path: None,
+            }));
+
+            if cfg!(target_os = "android") && !cfg!(feature = "_tls-native-tls-roots") {
+                let Error::Configuration(error) = result.unwrap_err() else {
+                    panic!("expected a configuration error");
+                };
+                assert!(error.to_string().contains("tls-native-tls-roots"));
+            } else {
+                result.unwrap();
+            }
+        }
+    }
+
+    #[test]
+    fn accepting_invalid_certificates_does_not_require_roots() {
+        rt::test_block_on(connector(TlsConfig {
+            accept_invalid_certs: true,
+            accept_invalid_hostnames: true,
+            root_cert_path: None,
+            client_cert_path: None,
+            client_key_path: None,
+        }))
+        .unwrap();
     }
 }

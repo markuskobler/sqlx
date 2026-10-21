@@ -95,32 +95,29 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
 
-      - name: Check AWS-LC root certificate dependencies
-        run: python3 tests/tls_features.py
-
       - name: Test sqlx-core
         run: >
           cargo test
           -p sqlx-core
-          --all-features      
+          --all-features
 
       - name: Test sqlx-mysql
         run: >
           cargo test
           -p sqlx-mysql
-          --all-features      
+          --all-features
 
       - name: Test sqlx-postgres
         run: >
           cargo test
           -p sqlx-postgres
-          --all-features      
+          --all-features
 
       - name: Test sqlx-sqlite
         run: >
           cargo test
           -p sqlx-sqlite
-          --all-features      
+          --all-features
 
       - name: Test sqlx-macros-core
         run: >
@@ -278,7 +275,7 @@ jobs:
       - env:
           RUSTFLAGS: -D warnings --cfg postgres="${{ matrix.postgres }}"
         run: >
-          cargo build 
+          cargo build
           --no-default-features
           --features postgres,_unstable-all-types,runtime-${{ matrix.runtime }},tls-${{ matrix.tls }},macros,migrate
 

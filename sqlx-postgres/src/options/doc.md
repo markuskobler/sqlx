@@ -86,11 +86,14 @@ See `default_host()` in the same source file as this method for the current beha
 The default root certificates depend on Cargo features. With `rustls`, certificates
 from `sslrootcert` are added to these roots:
 
-* If `tls-native-tls` is enabled, the system root certificates are used.
-* If `tls-rustls-ring-native-roots` is enabled, the system root certificates are used.
-* If `tls-rustls-webpki-roots`, `tls-rustls-ring-webpki`, `tls-rustls-ring`, or
-  `tls-rustls` is enabled, TLS roots are populated using the [`webpki-roots`] crate.
-* Otherwise, `rustls` starts with no roots. Supply `sslrootcert` when verifying server certificates.
+* For `native-tls`, `tls-native-tls-roots` enables the system root store.
+  On Android, verified connections require this feature even with `sslrootcert`.
+  Use `rustls` to trust only supplied CA certificates on Android.
+* For `rustls`, `tls-rustls-native-roots` or `tls-rustls-ring-native-roots` loads the system root store.
+* Otherwise, `tls-rustls-webpki-roots` or `tls-rustls-ring-webpki` loads bundled roots from [`webpki-roots`].
+* Without a root feature, the selected TLS backend starts with no roots. Supply
+  `sslrootcert` when verifying server certificates. For `native-tls`, `sslrootcert`
+  is also added to the selected root store.
 
 ## Environment Variables
 Unlike with `libpq`, the following environment variables may be _either_

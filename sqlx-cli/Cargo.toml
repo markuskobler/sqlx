@@ -56,8 +56,8 @@ features = [
 default = ["postgres", "sqlite", "mysql", "native-tls", "completions", "sqlx-toml"]
 
 # TLS options
-rustls = ["sqlx/tls-rustls"]
-native-tls = ["sqlx/tls-native-tls"]
+rustls = ["sqlx/tls-rustls-ring-webpki"]
+native-tls = ["sqlx/tls-native-tls", "sqlx/tls-native-tls-roots"]
 
 # databases
 mysql = ["sqlx/mysql"]

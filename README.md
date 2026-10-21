@@ -135,7 +135,7 @@ SQLx is compatible with the [`async-std`], [`tokio`], and [`actix`] runtimes; an
 # tokio (no TLS)
 sqlx = { version = "0.9", features = [ "runtime-tokio" ] }
 # tokio + native-tls
-sqlx = { version = "0.9", features = [ "runtime-tokio", "tls-native-tls" ] }
+sqlx = { version = "0.9", features = [ "runtime-tokio", "tls-native-tls", "tls-native-tls-roots" ] }
 # tokio + rustls with ring and WebPKI CA certificates
 sqlx = { version = "0.9", features = [ "runtime-tokio", "tls-rustls-ring-webpki" ] }
 # tokio + rustls with ring and platform's native CA certificates
@@ -146,7 +146,7 @@ sqlx = { version = "0.9", features = [ "runtime-tokio", "tls-rustls-aws-lc-rs", 
 # async-std (no TLS)
 sqlx = { version = "0.9", features = [ "runtime-async-std" ] }
 # async-std + native-tls
-sqlx = { version = "0.9", features = [ "runtime-async-std", "tls-native-tls" ] }
+sqlx = { version = "0.9", features = [ "runtime-async-std", "tls-native-tls", "tls-native-tls-roots" ] }
 # async-std + rustls with ring and WebPKI CA certificates
 sqlx = { version = "0.9", features = [ "runtime-async-std", "tls-rustls-ring-webpki" ] }
 # async-std + rustls with ring and platform's native CA certificates
@@ -169,14 +169,24 @@ be removed in the future.
 
     - Actix-web is fully compatible with Tokio and so a separate runtime feature is no longer needed.
 
--   `tls-native-tls`: Use the `native-tls` TLS backend (OpenSSL on *nix, SChannel on Windows, Secure Transport on macOS).
+-   `tls-native-tls`: Use the `native-tls` TLS backend (OpenSSL on *nix, SChannel on Windows, Secure Transport on macOS), without trusting the system root store.
+-   `tls-native-tls-roots`: Enable the system root store for `native-tls`.
+    On Android, `native-tls` requires this feature when verifying server certificates,
+    even if CA certificates are supplied through connection options. Use `rustls`
+    to trust only supplied CA certificates on Android.
 
--   `tls-rustls`: Use the `rustls` TLS backend (cross-platform backend, only supports TLS 1.2 and 1.3).
+-   `tls-rustls` / `tls-rustls-ring`: Use `rustls` with `ring`, without enabling default CA certificates.
 -   `tls-rustls-aws-lc-rs`: Use the `rustls` TLS backend with `aws-lc-rs`, without enabling default CA certificates.
 -   `tls-rustls-webpki-roots`: Enable bundled WebPKI CA certificates for `rustls`.
-    Existing `tls-rustls-aws-lc-rs` users must add this feature to retain bundled roots.
-    Otherwise, supply CA certificates through the connection options when verifying server certificates.
-    Other enabled TLS features can still enable default roots.
+-   `tls-rustls-native-roots`: Load the system root store for `rustls` with either provider.
+    Native roots take precedence if both `rustls` root sources are enabled.
+
+    Existing `tls-native-tls` users must add `tls-native-tls-roots` to retain system roots.
+    Existing `tls-rustls`, `tls-rustls-ring`, and `tls-rustls-aws-lc-rs` users must add
+    `tls-rustls-webpki-roots` to retain bundled roots. The explicit
+    `tls-rustls-ring-webpki` and `tls-rustls-ring-native-roots` features retain their root sources.
+    Without a root feature, supply CA certificates through the connection options when
+    verifying server certificates. Certificate verification remains enabled.
 
 -   `postgres`: Add support for the Postgres database server.
 

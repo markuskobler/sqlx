@@ -32,6 +32,10 @@ you can enable Transport Layer Security (TLS) by enabling one of the following f
   * SecureTransport on macOS.
   * SChannel on Windows.
   * OpenSSL on all other platforms.
+  * Add `tls-native-tls-roots` to trust the system root store.
+  * On Android, verifying server certificates requires `tls-native-tls-roots`, even
+    when CA certificates are supplied through connection options. Use `rustls` to
+    trust only supplied CA certificates on Android.
 * `tls-rustls`: Enables the [rustls] backend, a cross-platform TLS library.
   * Only supports TLS revisions 1.2 and 1.3.
   * If you get `HandshakeFailure` errors when using this feature, it likely means your database server does not support
@@ -42,10 +46,15 @@ you can enable Transport Layer Security (TLS) by enabling one of the following f
     features. Alternatively, you can use `tls-rustls-aws-lc-rs` to use the
     `aws-lc-rs` provider, which enables additional cipher suite support at the cost
     of more onerous build requirements (depending on platform support).
-  * `tls-rustls-aws-lc-rs` does not enable default CA certificates. Add
-    `tls-rustls-webpki-roots` to use bundled WebPKI roots, or supply CA certificates
-    through the connection options when verifying server certificates.
-    Other enabled TLS features can still enable default roots.
+  * Add `tls-rustls-webpki-roots` to use bundled WebPKI roots, or
+    `tls-rustls-native-roots` to load the system root store. Both root features work
+    with either cryptographic provider. Native roots take precedence if both are enabled.
+
+The backend features above do not enable default CA certificates. Without a root
+feature, supply CA certificates through the connection options when verifying server
+certificates. Certificate verification remains enabled. The explicit
+`tls-rustls-ring-webpki` and `tls-rustls-ring-native-roots` features still select
+their respective root sources.
 
 If more than one TLS feature is enabled, the `tls-native-tls` feature takes precedent so that it is only necessary to enable
 it to see if it resolves the `HandshakeFailure` error without disabling `tls-rustls`.

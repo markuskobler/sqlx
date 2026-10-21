@@ -21,8 +21,11 @@ _rt-smol = ["sqlx-macros-core/_rt-smol"]
 _rt-tokio = ["sqlx-macros-core/_rt-tokio"]
 
 _tls-native-tls = ["sqlx-macros-core/_tls-native-tls"]
+_tls-native-tls-roots = ["sqlx-macros-core/_tls-native-tls-roots"]
 _tls-rustls-aws-lc-rs = ["sqlx-macros-core/_tls-rustls-aws-lc-rs"]
 _tls-rustls-webpki-roots = ["sqlx-macros-core/_tls-rustls-webpki-roots"]
+_tls-rustls-native-roots = ["sqlx-macros-core/_tls-rustls-native-roots"]
+_tls-rustls-ring = ["sqlx-macros-core/_tls-rustls-ring"]
 _tls-rustls-ring-webpki = ["sqlx-macros-core/_tls-rustls-ring-webpki"]
 _tls-rustls-ring-native-roots = ["sqlx-macros-core/_tls-rustls-ring-native-roots"]
 
