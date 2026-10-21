@@ -42,6 +42,10 @@ you can enable Transport Layer Security (TLS) by enabling one of the following f
     features. Alternatively, you can use `tls-rustls-aws-lc-rs` to use the
     `aws-lc-rs` provider, which enables additional cipher suite support at the cost
     of more onerous build requirements (depending on platform support).
+  * `tls-rustls-aws-lc-rs` does not enable default CA certificates. Add
+    `tls-rustls-webpki-roots` to use bundled WebPKI roots, or supply CA certificates
+    through the connection options when verifying server certificates.
+    Other enabled TLS features can still enable default roots.
 
 If more than one TLS feature is enabled, the `tls-native-tls` feature takes precedent so that it is only necessary to enable
 it to see if it resolves the `HandshakeFailure` error without disabling `tls-rustls`.

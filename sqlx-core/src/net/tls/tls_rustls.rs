@@ -245,7 +245,6 @@ fn import_root_certs() -> RootCertStore {
     root_cert_store
 }
 
-// Not currently used but allows for a "tls-rustls-no-roots" feature.
 #[cfg(not(any(feature = "rustls-native-certs", feature = "webpki-roots")))]
 fn import_root_certs() -> RootCertStore {
     RootCertStore::empty()

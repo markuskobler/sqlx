@@ -83,11 +83,14 @@ See `default_host()` in the same source file as this method for the current beha
 
 # Note: SSL
 ## Root Certs
-If `sslrootcert` is not set, the default root certificates used depends on Cargo features:
+The default root certificates depend on Cargo features. With `rustls`, certificates
+from `sslrootcert` are added to these roots:
 
 * If `tls-native-tls` is enabled, the system root certificates are used.
 * If `tls-rustls-ring-native-roots` is enabled, the system root certificates are used.
-* Otherwise, TLS roots are populated using the [`webpki-roots`] crate.
+* If `tls-rustls-webpki-roots`, `tls-rustls-ring-webpki`, `tls-rustls-ring`, or
+  `tls-rustls` is enabled, TLS roots are populated using the [`webpki-roots`] crate.
+* Otherwise, `rustls` starts with no roots. Supply `sslrootcert` when verifying server certificates.
 
 ## Environment Variables
 Unlike with `libpq`, the following environment variables may be _either_

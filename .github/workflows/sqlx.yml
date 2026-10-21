@@ -38,6 +38,8 @@ jobs:
         include:
           - runtime: async-std
             tls: rustls
+          - runtime: tokio
+            tls: rustls-aws-lc-rs
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v5
@@ -92,6 +94,9 @@ jobs:
         run: rustup show active-toolchain || rustup toolchain install
 
       - uses: Swatinem/rust-cache@v2
+
+      - name: Check AWS-LC root certificate dependencies
+        run: python3 tests/tls_features.py
 
       - name: Test sqlx-core
         run: >
