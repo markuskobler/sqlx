@@ -28,8 +28,14 @@ dir_workspace = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 dir_tests = os.path.join(dir_workspace, "tests")
 
 RUNTIMES = ["async-std", "async-global-executor", "smol", "tokio"]
-CHECK_TLS = ["native-tls", "rustls", "rustls-ring", "rustls-aws-lc-rs", "none"]
-TLS_VARIANTS = ["native-tls", "rustls-ring", "rustls-aws-lc-rs", "none"]
+CHECK_TLS = [
+    "native-tls", "native-tls-no-roots", "rustls", "rustls-ring", "rustls-ring-no-roots",
+    "rustls-aws-lc-rs", "rustls-aws-lc-rs-no-roots", "none",
+]
+TLS_VARIANTS = [
+    "native-tls", "native-tls-no-roots", "rustls-ring", "rustls-ring-no-roots",
+    "rustls-aws-lc-rs", "rustls-aws-lc-rs-no-roots", "none",
+]
 POSTGRES_VERSIONS = ["17", "16", "15", "14", "13"]
 MYSQL_VERSIONS = ["8", "5_7"]
 MARIADB_VERSIONS = ["verylatest", "11_8", "11_4", "10_11", "10_6"]
@@ -81,12 +87,20 @@ def extract_features(command):
 
 
 def core_tls_features(tls):
+    if tls == "native-tls":
+        return ["_tls-native-tls", "_tls-native-tls-roots"]
+    if tls == "native-tls-no-roots":
+        return ["_tls-native-tls"]
     if tls == "rustls":
         return ["_tls-rustls-ring-webpki"]
     if tls == "rustls-ring":
         return ["_tls-rustls-ring-webpki", "_tls-rustls-ring-native-roots"]
     if tls == "rustls-aws-lc-rs":
+        return ["_tls-rustls-aws-lc-rs", "_tls-rustls-webpki-roots"]
+    if tls == "rustls-aws-lc-rs-no-roots":
         return ["_tls-rustls-aws-lc-rs"]
+    if tls == "rustls-ring-no-roots":
+        return ["_tls-rustls-ring"]
     return [f"_tls-{tls}"]
 
 

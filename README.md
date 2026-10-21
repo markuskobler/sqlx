@@ -140,8 +140,10 @@ sqlx = { version = "0.9", features = [ "runtime-tokio", "tls-native-tls" ] }
 sqlx = { version = "0.9", features = [ "runtime-tokio", "tls-rustls-ring-webpki" ] }
 # tokio + rustls with ring and platform's native CA certificates
 sqlx = { version = "0.9", features = [ "runtime-tokio", "tls-rustls-ring-native-roots" ] }
-# tokio + rustls with aws-lc-rs
+# tokio + rustls with aws-lc-rs and WebPKI CA certificates
 sqlx = { version = "0.9", features = [ "runtime-tokio", "tls-rustls-aws-lc-rs" ] }
+# tokio + rustls with aws-lc-rs and application-supplied CA certificates
+sqlx = { version = "0.9", features = [ "runtime-tokio", "tls-rustls-aws-lc-rs-no-roots" ] }
 
 # async-std (no TLS)
 sqlx = { version = "0.9", features = [ "runtime-async-std" ] }
@@ -151,8 +153,10 @@ sqlx = { version = "0.9", features = [ "runtime-async-std", "tls-native-tls" ] }
 sqlx = { version = "0.9", features = [ "runtime-async-std", "tls-rustls-ring-webpki" ] }
 # async-std + rustls with ring and platform's native CA certificates
 sqlx = { version = "0.9", features = [ "runtime-async-std", "tls-rustls-ring-native-roots" ] }
-# async-std + rustls with aws-lc-rs
+# async-std + rustls with aws-lc-rs and WebPKI CA certificates
 sqlx = { version = "0.9", features = [ "runtime-async-std", "tls-rustls-aws-lc-rs" ] }
+# async-std + rustls with aws-lc-rs and application-supplied CA certificates
+sqlx = { version = "0.9", features = [ "runtime-async-std", "tls-rustls-aws-lc-rs-no-roots" ] }
 ```
 
 #### Cargo Feature Flags
@@ -170,9 +174,18 @@ be removed in the future.
     - Actix-web is fully compatible with Tokio and so a separate runtime feature is no longer needed.
 
 -   `tls-native-tls`: Use the `native-tls` TLS backend (OpenSSL on *nix, SChannel on Windows, Secure Transport on macOS).
+-   `tls-native-tls-no-roots`: Use `native-tls` without trusting the system root store.
+    On Android, verified connections require `tls-native-tls` instead, which trusts
+    system roots. Use `rustls` to trust only supplied CA certificates on Android.
 
 -   `tls-rustls`: Use the `rustls` TLS backend (cross-platform backend, only supports TLS 1.2 and 1.3).
--   `tls-rustls-aws-lc-rs`: Use the `rustls` TLS backend with `aws-lc-rs`.
+-   `tls-rustls-ring-no-roots`: Use `rustls` with `ring`, without enabling default CA certificates.
+-   `tls-rustls-aws-lc-rs`: Use the `rustls` TLS backend with `aws-lc-rs` and bundled WebPKI CA certificates.
+-   `tls-rustls-aws-lc-rs-no-roots`: Use the `rustls` TLS backend with `aws-lc-rs`, without enabling default CA certificates.
+    Supply CA certificates through the connection options when verifying server certificates.
+    All three `*-no-roots` features preserve certificate verification. Other enabled TLS
+    features can still enable default roots; enabling the original feature for the same
+    backend restores its default roots.
 
 -   `postgres`: Add support for the Postgres database server.
 
